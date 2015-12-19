@@ -1,0 +1,103 @@
+!!ARBfp1.0
+
+#minneart shading
+ATTRIB color = fragment.color;
+ATTRIB texcoord = fragment.texcoord;
+ATTRIB position = fragment.texcoord[1];
+ATTRIB normal = fragment.texcoord[2];
+ATTRIB lightPos = fragment.texcoord[3];
+
+#PARAM lightPos = state.light[0].position;
+PARAM specular = state.material.shininess;
+PARAM attenuation = state.light[0].attenuation;
+PARAM k = {0.15};
+PARAM neg1 = {-1};
+PARAM distDefault = {1,0,0,0};
+PARAM one = {1,1,1,1};
+PARAM two = {2,2,2,2};
+PARAM hi = state.light[0].half;
+OUTPUT final = result.color;
+
+TEMP eye;
+TEMP col1;
+TEMP col2;
+TEMP light;
+TEMP pos;
+TEMP half;
+TEMP mag;
+TEMP lightVec;
+TEMP lightColor;
+TEMP diffuse;
+TEMP dist1,dist2;
+TEMP accum,accum2;
+TEMP oneminusk;
+#x = 1,y = dist,z = dist^2, w = 0
+TEMP dist;
+	
+	SUB oneminusk, one, k;
+	#maybe try manually multilpying light products
+	MOV dist, distDefault;
+	
+	#compute the light vector
+	SUB light, lightPos, position;
+	
+	#normalize it
+	DP3 dist1, light, light;
+	RSQ dist2, dist1.w;
+	MUL light, light, dist2.w;
+	
+	#normalize the position vector
+	DP3 mag.w, position, position;
+	RSQ mag.w, mag.w;
+	MUL pos, position, mag.w;
+	
+	#get dist
+	DST dist, dist1, dist2;
+	DP3 mag.w, dist, attenuation;
+	RCP dist.w, mag.w;
+	
+	#compute part1
+	DP3 accum.w, normal, light;
+#	COS accum.w, accum.w;
+	POW accum.w, accum.w, k.x;
+	MUL accum2, neg1.x, pos;
+	DP3 accum.z, accum2, normal;
+#	COS accum.z, accum.z;
+	POW accum.z, accum.z, oneminusk.x;
+	MUL accum.x, accum.z, accum.w;
+
+	#compute the half-angle vector
+#	ADD half, -pos, light;
+#compute R = L + 2*N(NdotL)
+	DP3 mag.w, normal, light;
+	MUL half, mag.w, normal;
+	ADD half, half, half;
+	ADD half, -light, half;
+	
+
+	
+	#normalize it
+	DP3 mag.w, half, half;
+	RSQ mag.w, mag.w;
+	MUL half, half, mag.w;
+	
+	#compute lighting
+	DP3 lightVec.x, normal, light;
+#	DP3 lightVec.y, normal, half;
+	DP3 lightVec.y, -pos, half;
+	MOV lightVec.w, specular.x;
+	LIT lightVec, lightVec;
+	
+	
+	#get ambient
+	MUL lightColor, lightVec.x, state.lightprod[0].ambient;
+	#add in diffuse
+	MAD lightColor, lightVec.y, state.lightprod[0].diffuse, lightColor;
+	#add in specular
+	MAD lightColor, lightVec.z, state.lightprod[0].specular, lightColor;
+	MUL lightColor, lightColor, dist.w;
+
+	#MOV final, lightColor;
+	MUL lightColor, lightColor, color;
+	MUL final, lightColor, accum.x;
+END

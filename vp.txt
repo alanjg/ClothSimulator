@@ -1,0 +1,43 @@
+!!ARBvp1.0
+
+ATTRIB position = vertex.position;
+ATTRIB normal = vertex.normal;
+ATTRIB texcoord = vertex.texcoord;
+ATTRIB color = vertex.color;
+
+PARAM mvp[4] = { state.matrix.mvp };
+PARAM modelview[4] = { state.matrix.modelview };
+PARAM invtrans[4] = {state.matrix.modelview.invtrans };
+PARAM lightPos = state.light[0].position;
+
+OUTPUT hpos = result.position;
+OUTPUT tex0 = result.texcoord;
+OUTPUT tex1 = result.texcoord[1];
+OUTPUT tex2 = result.texcoord[2];
+OUTPUT tex3 = result.texcoord[3];
+
+OUTPUT col = result.color;
+
+	MOV result.texcoord, texcoord;
+	
+	DP4 hpos.x, mvp[0], position;
+	DP4 hpos.y, mvp[1], position;
+	DP4 hpos.z, mvp[2], position;
+	DP4 hpos.w, mvp[3], position;
+
+	DP4 tex1.x, modelview[0], position;
+	DP4 tex1.y, modelview[1], position;
+	DP4 tex1.z, modelview[2], position;
+	DP4 tex1.w, modelview[3], position;
+
+#	DP4 tex3.x, modelview[0], lightPos;
+#	DP4 tex3.y, modelview[1], lightPos;
+#	DP4 tex3.z, modelview[2], lightPos;
+#	DP4 tex3.w, modelview[3], lightPos;
+	MOV tex3, lightPos;
+
+	DP3 tex2.x, invtrans[0], normal;
+	DP3 tex2.y, invtrans[1], normal;
+	DP3 tex2.z, invtrans[2], normal;
+	MOV col, color;
+END
