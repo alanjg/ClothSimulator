@@ -130,6 +130,7 @@
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Plane.h" />
+    <ClInclude Include="ppm.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
