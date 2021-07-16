@@ -9,7 +9,6 @@
 #include "ppm.h"
 #include <sstream>
 #include <cstdio>
-#include "Recorder.h"
 #include "ClothMesh.h"
 #include "ConvexifierMesh.h"
 #include "extgl.h"

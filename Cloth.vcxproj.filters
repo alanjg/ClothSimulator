@@ -121,4 +121,7 @@
     <Text Include="fp.txt" />
     <Text Include="vp.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
